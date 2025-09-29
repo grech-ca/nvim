@@ -96,21 +96,56 @@ local function update_ope_code()
   ope_code_cache = num and ("OPE-" .. num) or ""
 end
 
--- the actual Heirline component
+-- Replace the sync cache + updater with this (near lines ~88+)
+
+local ope = { cache = nil, updating = false }
+
+local function refresh_ope_code()
+  if ope.updating then return end
+  ope.updating = true
+
+  local cwd = vim.fn.expand("%:p:h")
+  vim.system({ "git", "-C", cwd, "rev-parse", "--abbrev-ref", "HEAD" }, { text = true }, function(obj)
+    local branch = (obj.stdout or ""):gsub("%s+$", "")
+    local num = branch:match("%-ope%-(%d+)%-")
+    local new = num and ("OPE-" .. num) or ""
+
+    if new ~= ope.cache then
+      ope.cache = new
+      vim.schedule(function() vim.cmd("redrawstatus") end)
+    end
+    ope.updating = false
+  end)
+end
+
+-- Replace the OpeCode component (near line ~100)
 local OpeCode = {
-  init = function ()
-    if ope_code_cache == "" then update_ope_code() end
+  init = function()
+    if ope.cache == nil then refresh_ope_code() end
+  end,
+  update = { "BufEnter", "DirChanged", "BufWritePost" }, -- when it makes sense to refresh
+  provider = function()
+    -- keep a minimal stable width even when empty to reduce layout jumps
+    local label = (ope.cache and ope.cache ~= "" and (" " .. ope.cache .. " "))
+    return label
   end,
   on_click = {
     callback = function()
-      vim.fn.system("open https://linear.app/worldcoin/issue/" .. ope_code_cache)
+      if ope.cache and ope.cache ~= "" then
+        local url = "https://linear.app/worldcoin/issue/" .. ope.cache
+        -- cross-platform open (macOS 'open', Linux 'xdg-open', Windows 'start')
+        if vim.fn.has("mac") == 1 then
+          vim.fn.jobstart({ "open", url }, { detach = true })
+        elseif vim.fn.has("unix") == 1 then
+          vim.fn.jobstart({ "xdg-open", url }, { detach = true })
+        else
+          vim.fn.jobstart({ "cmd", "/c", "start", url }, { detach = true })
+        end
+      end
     end,
-    name = "linear_callback",
+    name = "linear_open",
   },
-  provider = function()
-    return (ope_code_cache ~= "" and (" " .. ope_code_cache .. " ") or "")
-  end,
-  hl = { bg = "#4433CC", fg = "#CCCCCC", bold = true },
+  hl = { fg = "#ffffff", bg = "#4433CC" },
 }
 
 
@@ -136,7 +171,7 @@ local StatusLine = {
   Diagnostics,
   Align,
   -- TODO: Fix cursor flickering
-  -- OpeCode,
+  OpeCode,
   SearchCount,
   Clock,
 }

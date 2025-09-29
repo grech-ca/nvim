@@ -17,6 +17,7 @@ M.filtered_code_action = function()
     "Disable .* for the entire file",
     "Show documentation for .*",
     "Convert named imports to default import",
+    "Add 'const' to unresolved variable",
 
     -- Prettier
     "Disable prettier/prettier for the entire file",

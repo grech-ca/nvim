@@ -35,7 +35,77 @@ return {
 	    find = "E486"
 	  },
 	  opts = { skip = true },
-	}
+	},
+	{
+	  filter = {
+	    event = "msg_show",
+	    kind = "emsg",
+	    find = "E382"
+	  },
+	  opts = { skip = true },
+	},
+	{
+	  filter = {
+	    event = "msg_show",
+	    kind = "",
+	    find = "written",
+	  },
+	  opts = { skip = true },
+	},
+	{
+	  filter = {
+	    event = "msg_show",
+	    kind = "",
+	    find = "line less",
+	  },
+	  opts = { skip = true },
+	},
+	{
+	  filter = {
+	    event = "msg_show",
+	    kind = "",
+	    find = "written",
+	  },
+	  opts = { skip = true },
+	},
+	-- Skip the “N lines more / fewer lines” messages
+	{
+	  filter = {
+	    event = "msg_show",
+	    kind = "",
+	    any = {
+	      { find = "more lines" },
+	      { find = "fewer lines" },
+	      { find = "%d+L, %d+B" },  -- e.g. “58L, 1404B”
+	    },
+	  },
+	  opts = { skip = true },
+	},
+	-- Skip search‐count messages (e.g. “[3/10]”) if you don’t want them
+	{
+	  filter = {
+	    event = "msg_show",
+	    kind = "search_count",
+	  },
+	  opts = { skip = true },
+	},
+	-- You can skip notifications too (if you use Vim plugins or LSP sending via notify)
+	{
+	  filter = {
+	    event = "notify",
+	    -- maybe a pattern you often see
+	    find = "No information",
+	  },
+	  opts = { skip = true },
+	},
+	-- Optionally: skip *all* msg_show with no kind (i.e. general messages)
+	{
+	  filter = {
+	    event = "msg_show",
+	    kind = "",
+	  },
+	  opts = { skip = true },
+	},
       },
       presets = {
 	-- bottom_search = true, -- use a classic bottom cmdline for search
@@ -44,6 +114,7 @@ return {
 	-- inc_rename = false, -- enables an input dialog for inc-rename.nvim
 	lsp_doc_border = true, -- add a border to hover docs and signature help
       },
+      popupmenu = { backend = "nui" },
     })
   end
 }

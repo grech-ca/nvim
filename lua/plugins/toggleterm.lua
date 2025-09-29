@@ -13,7 +13,7 @@ return {
     local lazygit = require("plugins.components.toggleterm.lazygit")
     local regular = require("plugins.components.toggleterm.regular")
 
-    vim.keymap.set("n", "<Leader>tl", lazygit.toggle, { desc = "Move to next buffer" })
+    vim.keymap.set("n", "<Leader>lg", lazygit.toggle, { desc = "Move to next buffer" })
     vim.keymap.set("n", "<Leader>tf", regular.toggle, { desc = "Move to next buffer" })
   end
 }

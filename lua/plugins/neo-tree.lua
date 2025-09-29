@@ -38,7 +38,8 @@ return {
         ["S"] = false,
         ["<"] = false,
         [">"] = false,
-      }
+      },
+      width = 50,
     },
     filesystem = {
       filtered_items = {

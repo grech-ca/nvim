@@ -12,6 +12,9 @@ vim.g.maplocalleader = "\\"
 vim.o.hlsearch = true
 vim.o.incsearch = true  -- highlights as you type
 
+vim.opt.ignorecase = true
+vim.opt.wrap = false
+
 vim.api.nvim_create_autocmd("TextYankPost", {
   callback = function()
     vim.highlight.on_yank { higroup = "IncSearch", timeout = 100 }

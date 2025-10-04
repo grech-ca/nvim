@@ -22,6 +22,7 @@ return {
         local opts = { buffer = bufnr, noremap = true, silent = true }
 
         vim.keymap.set('n', 'gd', require('telescope.builtin').lsp_definitions, opts)
+	-- vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
         vim.keymap.set('n', 'gi', require('telescope.builtin').lsp_implementations, opts)
         vim.keymap.set('n', 'gr', require('telescope.builtin').lsp_references, opts)
         vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename, opts)
@@ -48,6 +49,7 @@ return {
       lspconfig.tailwindcss.setup { on_attach = on_attach, }
       lspconfig.cssls.setup { on_attach = on_attach, }
       lspconfig.css_variables.setup { on_attach = on_attach, }
+      lspconfig.prismals.setup { on_attach = on_attach, }
     end,
   }
 }

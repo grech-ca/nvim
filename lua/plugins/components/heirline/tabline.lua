@@ -1,12 +1,24 @@
 local utils = require("heirline.utils")
+local conditions = require("heirline.conditions")
 
 -- we redefine the filename component, as we probably only want the tail and not the relative path
 local TablineFileName = {
   provider = function(self)
-    -- self.filename will be defined later, just keep looking at the example!
-    local filename = self.filename
-    filename = filename == "" and "[No Name]" or vim.fn.fnamemodify(filename, ":t")
-    return filename
+        -- first, trim the pattern relative to the current directory. For other
+        -- options, see :h filename-modifers
+        local filepath = vim.fn.fnamemodify(self.filename, ":.")
+        if filepath == "" then return "[No Name]" end
+
+
+        local parentDirectory = vim.fn.fnamemodify(self.filename, ":h:t")
+	local filename = vim.fn.fnamemodify(self.filename, ":t:r")
+	local ext = vim.fn.fnamemodify(self.filename, ":e")
+
+	if filename == "index" and (ext == "ts" or ext == "tsx" or ext == "js" or ext == "jsx") then
+	  return parentDirectory .. "/" .. "i~" .. ext
+	end
+
+        return filename .. "." .. ext
   end,
   hl = function(self)
     return { bold = self.is_active or self.is_visible, italic = true }

@@ -1,3 +1,4 @@
+local util = require('lspconfig.util')
 return {
   {
     "neovim/nvim-lspconfig",
@@ -46,7 +47,22 @@ return {
       lspconfig.eslint.setup { on_attach = on_attach, }
       lspconfig.jsonls.setup { on_attach = on_attach, }
       lspconfig.graphql.setup { on_attach = on_attach, }
-      lspconfig.tailwindcss.setup { on_attach = on_attach, }
+      local config_file = vim.fn.fnamemodify('tailwind.config.ts', ':p') -- absolute path
+      lspconfig.tailwindcss.setup{
+	on_attach = on_attach,
+	root_dir = util.root_pattern('tailwind.config.ts','package.json','.git'),
+	settings = {
+	  tailwindCSS = {
+	    experimental = {
+	      -- The LS supports this and will skip auto-discovery
+	      configFile = config_file,
+	    },
+	    classAttributes = {
+	      "(([a-zA-Z\\d]+C)|c)lassName"
+	    }
+	  },
+	},
+      }
       lspconfig.cssls.setup { on_attach = on_attach, }
       lspconfig.css_variables.setup { on_attach = on_attach, }
       lspconfig.prismals.setup { on_attach = on_attach, }

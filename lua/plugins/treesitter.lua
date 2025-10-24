@@ -37,9 +37,17 @@ return {
       additional_vim_regex_highlighting = false,
     },
 
-    context_commentstring = {
-      enable = true,
-      enable_autocmd = false,
-    },
-  }
+     context_commentstring = {
+       enable = true,
+       enable_autocmd = false,
+     },
+   },
+   config = function()
+     vim.api.nvim_create_autocmd("FileType", {
+       pattern = "typescriptreact",
+       callback = function()
+         require("nvim-treesitter").setup()
+       end,
+     })
+   end,
 }

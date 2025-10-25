@@ -12,8 +12,6 @@ return {
             ["if"] = "@function.inner",
             ["ac"] = "@class.outer",
             ["ic"] = "@class.inner",
-            ["at"] = "@tag.outer",   -- JSX/HTML tags
-            ["it"] = "@tag.inner",
           },
         },
         swap = {

@@ -51,15 +51,50 @@ return {
         filetypes = { "graphql", "typescriptreact", "typescript", "javascriptreact", "javascript" },
         root_dir = util.root_pattern('.graphqlrc*', 'graphql.config.*'),
       }
-      local config_file = vim.fn.fnamemodify('tailwind.config.ts', ':p') -- absolute path
       lspconfig.tailwindcss.setup{
 	on_attach = on_attach,
-	root_dir = util.root_pattern('tailwind.config.ts','package.json','.git'),
+	root_dir = util.root_pattern('tailwind.config.ts','tailwind.config.js','package.json','.git'),
+	on_new_config = function(new_config, new_root_dir)
+	  local globals_css = new_root_dir .. "/app/globals.css"
+	  local index_css = new_root_dir .. "/src/index.css"
+	  local tailwind_ts = new_root_dir .. "/tailwind.config.ts"
+	  local tailwind_js = new_root_dir .. "/tailwind.config.js"
+
+	  if vim.uv.fs_stat(globals_css) then
+	    new_config.settings.tailwindCSS.experimental.configFile = globals_css
+	  elseif vim.uv.fs_stat(index_css) then
+	    new_config.settings.tailwindCSS.experimental.configFile = index_css
+	  elseif vim.uv.fs_stat(tailwind_ts) then
+	    -- For Tailwind v4, we don't want to use an empty tailwind.config.ts as the config file.
+	    -- Check package.json dependencies to see if we're using Tailwind v4.
+	    local has_v4 = false
+	    local package_json = new_root_dir .. "/package.json"
+	    if vim.uv.fs_stat(package_json) then
+	      local f = io.open(package_json, "r")
+	      if f then
+		local content = f:read("*a")
+		f:close()
+		if content:find('"tailwindcss":%s*"%^4') or content:find('"@tailwindcss/postcss":%s*"%^4') then
+		  has_v4 = true
+		end
+	      end
+	    end
+
+	    if has_v4 then
+	      new_config.settings.tailwindCSS.experimental.configFile = nil
+	    else
+	      new_config.settings.tailwindCSS.experimental.configFile = tailwind_ts
+	    end
+	  elseif vim.uv.fs_stat(tailwind_js) then
+	    new_config.settings.tailwindCSS.experimental.configFile = tailwind_js
+	  else
+	    new_config.settings.tailwindCSS.experimental.configFile = nil
+	  end
+	end,
 	settings = {
 	  tailwindCSS = {
 	    experimental = {
-	      -- The LS supports this and will skip auto-discovery
-	      configFile = config_file,
+	      configFile = nil, -- dynamically set in on_new_config
 	    },
 	    classAttributes = {
 	      "(([a-zA-Z\\d]+C)|c)lassName"

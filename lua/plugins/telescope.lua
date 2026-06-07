@@ -29,6 +29,30 @@ return {
       },
     },
     config = function(_, opts)
+      local actions = require('telescope.actions')
+      local action_state = require('telescope.actions.state')
+
+      local function multi_open(prompt_bufnr)
+        local picker = action_state.get_current_picker(prompt_bufnr)
+        local multi = picker:get_multi_selection()
+        if vim.tbl_isempty(multi) then
+          actions.select_default(prompt_bufnr)
+          return
+        end
+        actions.close(prompt_bufnr)
+        for _, entry in ipairs(multi) do
+          local filename = entry.path or entry.filename
+          if filename then
+            vim.cmd("edit " .. vim.fn.fnameescape(filename))
+          end
+        end
+      end
+
+      opts.defaults.mappings = {
+        i = { ["<CR>"] = multi_open },
+        n = { ["<CR>"] = multi_open },
+      }
+
       local telescope = require('telescope')
       telescope.setup(opts)
       telescope.load_extension('fzf')

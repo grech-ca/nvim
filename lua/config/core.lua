@@ -15,6 +15,9 @@ vim.o.incsearch = true  -- highlights as you type
 vim.opt.ignorecase = true
 vim.opt.wrap = false
 
+-- Lower LSP semantic token priority so TreeSitter injections (e.g., GraphQL in template strings) take precedence
+vim.highlight.priorities.semantic_tokens = 95 -- default is 125, treesitter is 100
+
 vim.api.nvim_create_autocmd("TextYankPost", {
   callback = function()
     vim.highlight.on_yank { higroup = "IncSearch", timeout = 100 }

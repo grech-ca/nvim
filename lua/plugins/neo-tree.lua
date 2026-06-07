@@ -12,6 +12,70 @@ return {
   ---@type neotree.Config?
   opts = {
     close_if_last_window = true,
+    event_handlers = {
+      {
+        event = "file_moved",
+        handler = function(args)
+          -- Update imports when file is moved
+          vim.schedule(function()
+            local ts_clients = vim.lsp.get_clients({ name = "ts_ls" })
+            if #ts_clients == 0 then
+              vim.notify("TypeScript LSP not found", vim.log.levels.WARN)
+              return
+            end
+
+            for _, client in ipairs(ts_clients) do
+              client.request("workspace/executeCommand", {
+                command = "_typescript.applyRenameFile",
+                arguments = {
+                  {
+                    sourceUri = vim.uri_from_fname(args.source),
+                    targetUri = vim.uri_from_fname(args.destination),
+                  },
+                },
+              }, function(err, result)
+                if err then
+                  vim.notify("Failed to update imports: " .. vim.inspect(err), vim.log.levels.ERROR)
+                else
+                  vim.notify("Imports updated successfully", vim.log.levels.INFO)
+                end
+              end)
+            end
+          end)
+        end,
+      },
+      {
+        event = "file_renamed",
+        handler = function(args)
+          -- Update imports when file is renamed
+          vim.schedule(function()
+            local ts_clients = vim.lsp.get_clients({ name = "ts_ls" })
+            if #ts_clients == 0 then
+              vim.notify("TypeScript LSP not found", vim.log.levels.WARN)
+              return
+            end
+
+            for _, client in ipairs(ts_clients) do
+              client.request("workspace/executeCommand", {
+                command = "_typescript.applyRenameFile",
+                arguments = {
+                  {
+                    sourceUri = vim.uri_from_fname(args.source),
+                    targetUri = vim.uri_from_fname(args.destination),
+                  },
+                },
+              }, function(err, result)
+                if err then
+                  vim.notify("Failed to update imports: " .. vim.inspect(err), vim.log.levels.ERROR)
+                else
+                  vim.notify("Imports updated successfully", vim.log.levels.INFO)
+                end
+              end)
+            end
+          end)
+        end,
+      },
+    },
     source_selector = {
       truncation_character = "…",
       winbar = true,

@@ -46,7 +46,11 @@ return {
       lspconfig.ts_ls.setup { on_attach = on_attach, }
       lspconfig.eslint.setup { on_attach = on_attach, }
       lspconfig.jsonls.setup { on_attach = on_attach, }
-      lspconfig.graphql.setup { on_attach = on_attach, }
+      lspconfig.graphql.setup {
+        on_attach = on_attach,
+        filetypes = { "graphql", "typescriptreact", "typescript", "javascriptreact", "javascript" },
+        root_dir = util.root_pattern('.graphqlrc*', 'graphql.config.*'),
+      }
       local config_file = vim.fn.fnamemodify('tailwind.config.ts', ':p') -- absolute path
       lspconfig.tailwindcss.setup{
 	on_attach = on_attach,
